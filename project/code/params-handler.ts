@@ -1,4 +1,3 @@
-
 export interface Dictionary<T> {
   [Key: string]: T;
 }
@@ -12,7 +11,7 @@ export class ParamsHandler {
   }
 
   public static eup(object: any, ignoreNull: boolean = false): string {
-    let paramJson = '';
+    let paramJson = "";
     paramJson = JSON.stringify(object, (key, value) => {
       if (ignoreNull == false || value !== null) {
         return value;
@@ -22,7 +21,9 @@ export class ParamsHandler {
   }
 
   public static dup<T>(url: string): T {
-    return url !== undefined && url !== '' ? JSON.parse(decodeURIComponent(atob(decodeURIComponent(url)))) : null;
+    return url !== undefined && url !== ""
+      ? JSON.parse(decodeURIComponent(atob(decodeURIComponent(url))))
+      : null;
   }
 
   public clear() {
@@ -51,7 +52,7 @@ export class ParamsHandler {
     if (this.params) {
       const objPropName = Object.getOwnPropertyNames(this.params);
       return objPropName.reduce((a: number, c: string) => {
-        a += (ignoreNull == false || !isEmptyOrNull(this.params[c])) ? 1 : 0;
+        a += ignoreNull == false || !isEmptyOrNull(this.params[c]) ? 1 : 0;
         return a;
       }, 0);
       // return objPropName.length;
@@ -60,7 +61,6 @@ export class ParamsHandler {
     }
   }
 
-
   /* break reference */
   public toJson(ignoreNull: boolean = false): Dictionary<any> {
     const objPropName = Object.getOwnPropertyNames(this.params);
@@ -68,7 +68,7 @@ export class ParamsHandler {
     for (const item of objPropName) {
       if (
         (ignoreNull === true &&
-          this.params[item] !== '' &&
+          this.params[item] !== "" &&
           this.params[item] !== null &&
           this.params[item] !== undefined) ||
         ignoreNull === false
@@ -81,19 +81,20 @@ export class ParamsHandler {
 
   public urlParameters(ignoreNull = true, encode = false): string {
     const objPropName = Object.getOwnPropertyNames(this.params);
-    let objStr = '';
+    let objStr = "";
     for (const item of objPropName) {
       if (
         (ignoreNull === true &&
-          this.params[item] !== '' &&
+          this.params[item] !== "" &&
           this.params[item] !== null &&
           this.params[item] !== undefined) ||
         ignoreNull === false
       ) {
-        objStr += `${item}=${encode === true
-          ? encodeURIComponent(this.params[item])
-          : this.params[item]
-          }&`;
+        objStr += `${item}=${
+          encode === true
+            ? encodeURIComponent(this.params[item])
+            : this.params[item]
+        }&`;
       }
     }
     return objStr.substring(0, objStr.length - 1);
@@ -101,5 +102,5 @@ export class ParamsHandler {
 }
 
 function isEmptyOrNull(value: any): boolean {
-  return (value == '' || value == null || value == undefined) ? true : false;
+  return value == "" || value == null || value == undefined ? true : false;
 }

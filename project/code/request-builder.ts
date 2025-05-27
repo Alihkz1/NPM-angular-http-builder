@@ -1,33 +1,38 @@
-import { catchError } from "rxjs";
 import { ParamsHandler } from "./params-handler";
+import axios from "axios";
 
 export function Api(): RequestBuilder {
   return new RequestBuilder();
 }
 
-("$httpClient");
 ("$isLogin");
 
-export class RequestBuilder {
-  requestOptions: { headers?: any; params: any };
+interface IRequest {
+  method: requestType;
+  body?: Object;
+  params?: Object;
+  endpoint?: string;
+  controller: string;
+  action: string;
+  pathVariable: string;
+  version?: string;
+}
 
-  private request: IRequest = {
-    method: "get",
-    action: "",
+interface RequestOptions {
+  headers: Object;
+  params: Object;
+}
+
+export class RequestBuilder {
+  private request: Partial<IRequest> = {
     endpoint: "$baseUrl",
-    pathVariable: "",
-    body: null,
-    params: null,
-    controller: "",
     version: "v1",
   };
 
-  constructor() {
-    this.requestOptions = {
-      params: this.request.body,
-      headers: { Authorization: "Bearer $token" },
-    };
-  }
+  private requestOptions: Partial<RequestOptions> = {
+    params: this.request.body,
+    headers: { Authorization: "Bearer $token" },
+  };
 
   public get(): this {
     this.request.method = "get";
@@ -88,48 +93,41 @@ export class RequestBuilder {
 
   public call(): any {
     let url = this.request.endpoint + this.getVersion + this.request.controller;
-
-    if (this.request.action.length) url += "/" + this.request.action;
-    if (this.request.pathVariable.length)
+    if (this.request.action!.length) url += "/" + this.request.action;
+    if (this.request.pathVariable!.length)
       url += "/" + this.request.pathVariable;
 
     switch (this.request.method) {
       case "post":
-        return this.clientService?.http
-          .post(url, this.request.body, this.requestOptions)
-          .pipe(catchError((error) => this.errorHandler(error)));
+        return axios
+          .post(url, this.request.body, {})
+          .then((error) => this.errorHandler(error));
       case "get":
-        return this.clientService?.http
-          .get(
-            this.request.params ? url + "?" + this.request.params : url,
-            this.requestOptions
-          )
-          .pipe(catchError((error) => this.errorHandler(error)));
+        return axios
+          .get(this.request.params ? url + "?" + this.request.params : url, {})
+          .then((error) => this.errorHandler(error));
       case "put":
-        return this.clientService?.http
-          .put(url, this.request.body, this.requestOptions)
-          .pipe(catchError((error) => this.errorHandler(error)));
+        return (
+          axios
+            // .put(url, this.request.body, this.requestOptions)
+            .put(url, this.request.body, {})
+            .then((error) => this.errorHandler(error))
+        );
       case "delete":
-        return this.clientService?.http
-          .delete(url, { ...this.requestOptions, body: this.request.body })
-          .pipe(catchError((error) => this.errorHandler(error)));
+        return (
+          axios
+            // .delete(url, { ...this.requestOptions, body: this.request.body })
+            .delete(url, {})
+            .then((error) => this.errorHandler(error))
+        );
     }
   }
 
   onUnauthorize = () => {};
   onBadRequest = () => {};
   onForbidden = () => {};
+
+  errorHandler(e) {}
 }
 
 export type requestType = "get" | "post" | "put" | "delete";
-
-export interface IRequest {
-  method: requestType;
-  body?: any;
-  params?: any;
-  endpoint?: string;
-  controller: string;
-  action: string;
-  pathVariable: string;
-  version?: string;
-}
