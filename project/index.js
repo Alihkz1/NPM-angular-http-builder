@@ -1,4 +1,4 @@
-import { Api } from "./request-builder";
+import { Api } from "./http-builder";
 
 let globalConfig = {};
 

@@ -3,11 +3,11 @@ import { Config } from "./shared/config.interface";
 import { RequestOptions } from "./shared/request-options.interface";
 import { IRequest } from "./shared/request.interface";
 
-export function Api(config: Config): RequestBuilder {
-  return new RequestBuilder(config);
+export function Api(config: Config): HttpBuilder {
+  return new HttpBuilder(config);
 }
 
-export class RequestBuilder {
+export class HttpBuilder {
   baseUrl: string = "";
   authToken: string = "";
 
