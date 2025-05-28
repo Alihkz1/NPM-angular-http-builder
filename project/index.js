@@ -13,4 +13,4 @@ export function createApi(instanceConfig = {}) {
   return new Api(config);
 }
 
-module.exports = { init, Api: createApi };
+module.exports = { init, Api: createApi, createApi };
