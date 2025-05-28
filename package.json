@@ -1,16 +1,22 @@
 {
   "name": "angular-http-builder",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "1.0.4",
+  "description": "A fluent HTTP builder utility for Angular applications using Axios.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "angular http",
+    "http",
+    "axios",
+    "builder",
+    "typescript"
+  ],
+  "author": "Ali Hosseinkhani",
+  "license": "MIT",
   "dependencies": {
-    "axios": "^1.9.0",
-    "rxjs": "^7.8.2"
+    "axios": "^1.9.0"
   }
 }

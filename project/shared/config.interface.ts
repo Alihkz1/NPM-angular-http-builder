@@ -1,4 +1,4 @@
-export interface Config {
+export interface HttpBuilderConfig {
   baseUrl: string;
   authToken: string;
 }

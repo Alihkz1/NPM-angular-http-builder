@@ -1,9 +1,9 @@
 import axios from "axios";
-import { Config } from "./shared/config.interface";
+import { HttpBuilderConfig } from "./shared/config.interface";
 import { RequestOptions } from "./shared/request-options.interface";
 import { IRequest } from "./shared/request.interface";
 
-export function Api(config: Config): HttpBuilder {
+export function Api(config: HttpBuilderConfig): HttpBuilder {
   return new HttpBuilder(config);
 }
 
@@ -20,15 +20,18 @@ export class HttpBuilder {
     return this.request.version!.length ? this.request.version + "/" : "";
   }
 
-  private requestOptions: Partial<RequestOptions>;
+  private requestOptions: Partial<RequestOptions> | undefined;
 
-  constructor(config: Config) {
+  constructor(config: HttpBuilderConfig) {
     this.baseUrl = config.baseUrl;
     this.authToken = config.authToken;
-    this.requestOptions.headers = {
-      ...(config.authToken
-        ? { Authorization: `Bearer ${config.authToken}` }
-        : {}),
+    this.requestOptions = {
+      ...this.requestOptions,
+      headers: {
+        ...(config.authToken
+          ? { Authorization: `Bearer ${config.authToken}` }
+          : {}),
+      },
     };
   }
 
@@ -112,7 +115,7 @@ export class HttpBuilder {
   onBadRequest = () => {};
   onForbidden = () => {};
 
-  errorHandler(e) {
+  errorHandler(e: unknown) {
     console.error("error in response of the request");
     console.error(e);
   }
