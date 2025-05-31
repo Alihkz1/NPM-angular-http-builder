@@ -1,4 +1,4 @@
-import { Api } from "./http-builder";
+import { HttpBuilderFunction } from "./http-builder";
 import { HttpBuilderConfig } from "./shared/config.interface";
 
 let globalConfig: HttpBuilderConfig = {
@@ -10,13 +10,12 @@ export function InitHttpBuilder(config: HttpBuilderConfig): void {
   globalConfig = config;
 }
 
-export function createApi(instanceConfig: Partial<HttpBuilderConfig> = {}) {
+export function Api(instanceConfig: Partial<HttpBuilderConfig> = {}) {
   const mergedConfig: HttpBuilderConfig = {
     ...globalConfig,
     ...instanceConfig,
   };
-  return Api(mergedConfig);
+  return HttpBuilderFunction(mergedConfig);
 }
 
 export * from "./shared";
-export * from "./http-builder";

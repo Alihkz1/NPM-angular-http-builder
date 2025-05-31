@@ -1,29 +1,29 @@
-import axios from "axios";
-import { HttpBuilderConfig } from "./shared/config.interface";
-import { RequestOptions } from "./shared/request-options.interface";
-import { IRequest } from "./shared/request.interface";
+import axios from 'axios';
+import { HttpBuilderConfig } from './shared/config.interface';
+import { RequestOptions } from './shared/request-options.interface';
+import { IRequest } from './shared/request.interface';
+import { catchError, from, Observable, throwError } from 'rxjs';
 
-export function Api(config: HttpBuilderConfig): HttpBuilder {
+export function HttpBuilderFunction(config: HttpBuilderConfig): HttpBuilder {
   return new HttpBuilder(config);
 }
 
 export class HttpBuilder {
-  baseUrl: string = "";
-  authToken: string = "";
+  authToken: string = '';
 
   private request: Partial<IRequest> = {
-    endpoint: this.baseUrl,
-    version: "v1",
+    version: 'v1',
   };
 
   private get getVersion() {
-    return this.request.version!.length ? this.request.version + "/" : "";
+    console.info('got version! this.request: ', this.request);
+    return this.request.version ? this.request.version + '/' : '';
   }
 
   private requestOptions: Partial<RequestOptions> | undefined;
 
   constructor(config: HttpBuilderConfig) {
-    this.baseUrl = config.baseUrl;
+    this.request.endpoint = config.baseUrl;
     this.authToken = config.authToken;
     this.requestOptions = {
       ...this.requestOptions,
@@ -36,19 +36,19 @@ export class HttpBuilder {
   }
 
   public get(): this {
-    this.request.method = "get";
+    this.request.method = 'get';
     return this;
   }
   public post(): this {
-    this.request.method = "post";
+    this.request.method = 'post';
     return this;
   }
   public put(): this {
-    this.request.method = "put";
+    this.request.method = 'put';
     return this;
   }
   public delete(): this {
-    this.request.method = "delete";
+    this.request.method = 'delete';
     return this;
   }
 
@@ -87,28 +87,56 @@ export class HttpBuilder {
     return this;
   }
 
-  public call(): any {
-    let url = this.request.endpoint + this.getVersion + this.request.controller;
-    if (this.request.action!.length) url += "/" + this.request.action;
-    if (this.request.pathVariable!.length)
-      url += "/" + this.request.pathVariable;
+  public call(): Observable<any> {
+    if (!this.request.method) {
+      return throwError(() => new Error('HTTP method not specified'));
+    }
+    if (!this.request.endpoint) {
+      return throwError(() => new Error('Endpoint not specified'));
+    }
+    if (!this.request.controller) {
+      return throwError(() => new Error('Controller not specified'));
+    }
+
+    let url = `${this.request.endpoint}${this.getVersion}${this.request.controller}`;
+    if (this.request.action) url += `/${this.request.action}`;
+    if (this.request.pathVariable) url += `/${this.request.pathVariable}`;
+
+    let request: Promise<any>;
+    const config: any = {
+      params: this.request.params,
+      headers: this.requestOptions?.headers,
+    };
 
     switch (this.request.method) {
-      case "post":
-        return axios
-          .post(url, this.request.body, {})
-          .then((error) => this.errorHandler(error));
-      case "get":
-        return axios
-          .get(url, { params: this.request.params })
-          .then((error) => this.errorHandler(error));
-      case "put":
-        return axios
-          .put(url, this.request.body)
-          .then((error) => this.errorHandler(error));
-      case "delete":
-        return axios.delete(url).then((error) => this.errorHandler(error));
+      case 'post':
+        request = axios.post(url, this.request.body, config);
+        break;
+      case 'get':
+        request = axios.get(url, config);
+        break;
+      case 'put':
+        request = axios.put(url, this.request.body, config);
+        break;
+      case 'delete':
+        request = axios.delete(url, config);
+        break;
+      default:
+        return throwError(
+          () => new Error(`Unsupported method: ${this.request.method}`)
+        );
     }
+    return from(request).pipe(
+      catchError((error) => {
+        if (error.response) {
+          const status = error.response.status;
+          if (status === 401) this.onUnauthorize();
+          if (status === 400) this.onBadRequest();
+          if (status === 403) this.onForbidden();
+        }
+        return throwError(() => error);
+      })
+    );
   }
 
   onUnauthorize = () => {};
@@ -116,7 +144,7 @@ export class HttpBuilder {
   onForbidden = () => {};
 
   errorHandler(e: unknown) {
-    console.error("error in response of the request");
+    console.error('error in response of the request');
     console.error(e);
   }
 }
