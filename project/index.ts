@@ -10,7 +10,7 @@ export function InitHttpBuilder(config: HttpBuilderConfig): void {
   globalConfig = config;
 }
 
-export function Api(instanceConfig: Partial<HttpBuilderConfig> = {}) {
+export function Api(instanceConfig?: Partial<HttpBuilderConfig>) {
   const mergedConfig: HttpBuilderConfig = {
     ...globalConfig,
     ...instanceConfig,
@@ -19,3 +19,6 @@ export function Api(instanceConfig: Partial<HttpBuilderConfig> = {}) {
 }
 
 export * from "./shared";
+
+// index
+// config token precedence
