@@ -1,23 +1,23 @@
-import axios from 'axios';
-import { HttpBuilderConfig } from './shared/config.interface';
-import { RequestOptions } from './shared/request-options.interface';
-import { IRequest } from './shared/request.interface';
-import { catchError, from, Observable, throwError } from 'rxjs';
+import axios from "axios";
+import { HttpBuilderConfig } from "./shared/config.interface";
+import { RequestOptions } from "./shared/request-options.interface";
+import { IRequest } from "./shared/request.interface";
+import { catchError, from, Observable, throwError } from "rxjs";
 
 export function HttpBuilderFunction(config: HttpBuilderConfig): HttpBuilder {
   return new HttpBuilder(config);
 }
 
 export class HttpBuilder {
-  authToken: string = '';
+  authToken: string = "";
 
   private request: Partial<IRequest> = {
-    version: 'v1',
+    version: "v1",
   };
 
   private get getVersion() {
-    console.info('got version! this.request: ', this.request);
-    return this.request.version ? this.request.version + '/' : '';
+    console.info("got version! this.request: ", this.request);
+    return this.request.version ? this.request.version + "/" : "";
   }
 
   private requestOptions: Partial<RequestOptions> | undefined;
@@ -36,19 +36,19 @@ export class HttpBuilder {
   }
 
   public get(): this {
-    this.request.method = 'get';
+    this.request.method = "get";
     return this;
   }
   public post(): this {
-    this.request.method = 'post';
+    this.request.method = "post";
     return this;
   }
   public put(): this {
-    this.request.method = 'put';
+    this.request.method = "put";
     return this;
   }
   public delete(): this {
-    this.request.method = 'delete';
+    this.request.method = "delete";
     return this;
   }
 
@@ -89,13 +89,13 @@ export class HttpBuilder {
 
   public call(): Observable<any> {
     if (!this.request.method) {
-      return throwError(() => new Error('HTTP method not specified'));
+      return throwError(() => new Error("HTTP method not specified"));
     }
     if (!this.request.endpoint) {
-      return throwError(() => new Error('Endpoint not specified'));
+      return throwError(() => new Error("Endpoint not specified"));
     }
     if (!this.request.controller) {
-      return throwError(() => new Error('Controller not specified'));
+      return throwError(() => new Error("Controller not specified"));
     }
 
     let url = `${this.request.endpoint}${this.getVersion}${this.request.controller}`;
@@ -109,16 +109,16 @@ export class HttpBuilder {
     };
 
     switch (this.request.method) {
-      case 'post':
+      case "post":
         request = axios.post(url, this.request.body, config);
         break;
-      case 'get':
+      case "get":
         request = axios.get(url, config);
         break;
-      case 'put':
+      case "put":
         request = axios.put(url, this.request.body, config);
         break;
-      case 'delete':
+      case "delete":
         request = axios.delete(url, config);
         break;
       default:
@@ -144,7 +144,7 @@ export class HttpBuilder {
   onForbidden = () => {};
 
   errorHandler(e: unknown) {
-    console.error('error in response of the request');
+    console.error("error in response of the request");
     console.error(e);
   }
 }
